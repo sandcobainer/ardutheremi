@@ -1,6 +1,6 @@
 ## ardutheremi
 
-Theremin implemented on Arduino and Raspberry Pi 3B using distance sensors
+Theremin implemented on Arduino and Raspberry Pi 3B using ultrasonic range sensors
 
 ## Building touch free music instruments using basic micro-controllers
 
