@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+int bus1 , bus2 = 0;
+int range = 1;
+clock x;
+int total=0;
+
+typedef int[0,550] read;
+
+chan analogRead;
+chan uniquePress ;
+
+
+</declaration>
+	<template>
+		<name x="5" y="5">Theremin</name>
+		<declaration>// Place local declarations here.
+int readIndex=0;
+int reading;
+
+void tot()
+{
+total=total+reading;
+}
+
+void avg()
+{
+bus1=total/20;
+}</declaration>
+		<location id="id0" x="-246" y="-535">
+			<name x="-256" y="-569">puredata</name>
+			<urgent/>
+		</location>
+		<location id="id1" x="-127" y="-680">
+			<name x="-153" y="-714">pressed</name>
+			<urgent/>
+		</location>
+		<location id="id2" x="178" y="-688">
+			<name x="168" y="-722">AverageState</name>
+		</location>
+		<location id="id3" x="272" y="-833">
+			<name x="262" y="-867">TotalState</name>
+		</location>
+		<location id="id4" x="-136" y="-841">
+			<name x="-146" y="-875">highcut</name>
+			<urgent/>
+		</location>
+		<location id="id5" x="-85" y="-969">
+			<name x="-95" y="-1003">lowcut</name>
+			<urgent/>
+		</location>
+		<location id="id6" x="-501" y="-850">
+			<name x="-511" y="-884">Read</name>
+		</location>
+		<location id="id7" x="-722" y="-748">
+		</location>
+		<init ref="id7"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id7"/>
+			<label kind="assignment" x="-569" y="-688">bus1=0,bus2=0</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-8" y="-646">bus2&gt;0 &amp;&amp; bus2&lt;4</label>
+			<label kind="assignment" x="-144" y="-569">bus2=range</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-42" y="-705">uniquePress?</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-331" y="-918">reading&gt;=80 &amp;&amp; reading&lt;=490</label>
+			<label kind="assignment" x="-68" y="-909">tot(),
+readIndex=readIndex+1</label>
+			<nail x="-102" y="-935"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id3"/>
+			<label kind="assignment" x="144" y="-926">tot(),
+readIndex=readIndex+1</label>
+			<nail x="153" y="-960"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-407" y="-1007">reading&lt;80</label>
+			<label kind="assignment" x="-407" y="-973">reading=80</label>
+			<nail x="-408" y="-969"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="assignment" x="-280" y="-612">bus2=range</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id2"/>
+			<label kind="guard" x="187" y="-816">readIndex==20</label>
+			<label kind="assignment" x="178" y="-790">readIndex=0,
+avg(),
+total=0</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-289" y="-748">readIndex&lt;20</label>
+			<nail x="-221" y="-722"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="assignment" x="-76" y="-841">tot(),
+readIndex=readIndex+1</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-374" y="-858">reading&gt;490</label>
+			<label kind="assignment" x="-340" y="-833">reading=490</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id6"/>
+			<label kind="select" x="-704" y="-850">r: int[0,550]</label>
+			<label kind="synchronisation" x="-704" y="-816">analogRead?</label>
+			<label kind="assignment" x="-586" y="-816">reading=r</label>
+		</transition>
+	</template>
+	<template>
+		<name>IRSensor</name>
+		<declaration>clock x;
+</declaration>
+		<location id="id8" x="-204" y="-85">
+			<name x="-214" y="-119">Idle</name>
+			<label kind="invariant" x="-214" y="-68">x==0</label>
+		</location>
+		<init ref="id8"/>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-186" y="-165">x==5</label>
+			<label kind="synchronisation" x="-85" y="-93">analogRead!</label>
+			<label kind="assignment" x="-170" y="-25">x=0</label>
+			<nail x="-85" y="-178"/>
+			<nail x="-85" y="25"/>
+		</transition>
+	</template>
+	<template>
+		<name>Button</name>
+		<declaration>int button=0;</declaration>
+		<location id="id9" x="-212" y="-246">
+			<name x="-222" y="-280">Idle</name>
+		</location>
+		<location id="id10" x="-204" y="-51">
+			<name x="-214" y="-85">bpress</name>
+		</location>
+		<init ref="id9"/>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id9"/>
+			<label kind="guard" x="-578" y="-68">button==0</label>
+			<nail x="-204" y="17"/>
+			<nail x="-510" y="-9"/>
+			<nail x="-510" y="-306"/>
+			<nail x="-212" y="-314"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id9"/>
+			<label kind="guard" x="-170" y="-42">range&lt;3 &amp;&amp; button==1</label>
+			<label kind="synchronisation" x="-59" y="-170">uniquePress!</label>
+			<label kind="assignment" x="-195" y="-272">range=range+1</label>
+			<nail x="-76" y="-51"/>
+			<nail x="-76" y="-246"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id9"/>
+			<label kind="guard" x="-391" y="-42">range==3 &amp;&amp; button==1</label>
+			<label kind="synchronisation" x="-476" y="-170">uniquePress!</label>
+			<label kind="assignment" x="-357" y="-263">range=1</label>
+			<nail x="-348" y="-51"/>
+			<nail x="-348" y="-246"/>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="select" x="-255" y="-212">b:int[0,1]</label>
+			<label kind="assignment" x="-255" y="-110">button=b</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+irs=IRSensor();
+th=Theremin();
+but=Button();
+// List one or more processes to be composed into a system.
+system irs,th,but; 
+
+    </system>
+	<queries>
+	</queries>
+</nta>
